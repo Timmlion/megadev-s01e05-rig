@@ -92,6 +92,15 @@ describe('the agent host', () => {
     expect((await app().request('/ping', { method: 'POST', headers, body })).status).toBe(401);
   });
 
+  it('takes a ping on the bare address as well as on /ping', async () => {
+    for (const path of ['/', '/ping']) {
+      const { body, headers } = ping('{"kind":"pulse","reply":"https://hq.mega.dev/x","phrase":"pulse? hi"}', {
+        id: `msg_${path}`,
+      });
+      expect((await app().request(path, { method: 'POST', headers, body })).status).toBe(202);
+    }
+  });
+
   it('answers one ping once, even when the course retries it', async () => {
     const one = app();
     const { body, headers } = ping('{"kind":"pulse","reply":"https://hq.mega.dev/x","phrase":"pulse? hi"}');

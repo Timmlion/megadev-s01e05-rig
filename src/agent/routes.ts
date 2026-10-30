@@ -1,4 +1,4 @@
-import type { Hono } from 'hono';
+import type { Context, Hono } from 'hono';
 import type { AgentEnv } from './env.js';
 import { answerPulse, stopped, type PulsePing } from './pulse.js';
 import { courseUrl } from './model.js';
@@ -56,7 +56,7 @@ export function agentRoutes(app: Hono, env: AgentEnv, deps: AgentDeps = {}): voi
 
   app.get('/.well-known/mega-pulse.json', (c) => c.json(agentsFile(env)));
 
-  app.post('/ping', async (c) => {
+  const ping = async (c: Context) => {
     const raw = await c.req.text();
     const verdict = verifyPing(
       {
@@ -87,7 +87,11 @@ export function agentRoutes(app: Hono, env: AgentEnv, deps: AgentDeps = {}): voi
       .catch((err: Error) => console.error(`ping: ${err.message}`))
       .finally(() => seen.set(id, 'done'));
     return c.json({ ok: true }, 202);
-  });
+  };
+
+  // The course posts to the address the harness registers, and a bare host is a bare path.
+  app.post('/', ping);
+  app.post('/ping', ping);
 }
 
 export { stopped };
