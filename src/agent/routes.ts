@@ -38,12 +38,15 @@ async function post(env: AgentEnv, replyRaw: string, body: unknown): Promise<voi
 async function handle(env: AgentEnv, ping: PulsePing | TestPing): Promise<void> {
   if (ping.kind === 'pulse') {
     const text = await answerPulse(env, ping);
-    console.log(`pulse: ${text.slice(0, 60)}`);
+    // The whole answer, so a refused answer can be read back: no secrets in it.
+    console.log(`pulse phrase: ${ping.phrase ?? ''}`);
+    console.log(`pulse: ${text}`);
     await post(env, ping.reply, { text });
     return;
   }
   const reply = await writeTest(env, ping);
   if (!reply) return console.error('test-writer: no test to send');
+  console.log(`test-writer: ${reply.path} bytes=${Buffer.byteLength(reply.test)} red=${reply.red}`);
   await post(env, ping.reply, reply);
 }
 
@@ -70,6 +73,7 @@ export function agentRoutes(app: Hono, env: AgentEnv, deps: AgentDeps = {}): voi
     if (!verdict.ok) return c.json({ error: verdict.reason }, 401);
 
     const id = c.req.header('webhook-id')!;
+    console.log(`ping ${id.slice(0, 12)}`);
     if (seen.has(id)) return c.json({ error: 'already answered' }, 409);
     seen.set(id, 'running');
     if (seen.size > 1000) seen.clear();
