@@ -9,8 +9,7 @@ const env: AgentEnv = {
   owner: 'own-test',
   modelKey: 'unused',
   modelBase: 'https://example.invalid/v1',
-  pulseModel: 'm',
-  testModel: 'm',
+  model: 'm',
   course: 'https://hq.mega.dev',
 };
 const config = { adapter: 'shim', installed: '2026-10-30T00:00:00+01:00', beatEverySeconds: 60, runsDir: 'runs' };
@@ -105,6 +104,6 @@ describe('the agent host', () => {
 
 describe('env', () => {
   it('stops when a required value is missing', () => {
-    expect(() => loadAgentEnv({ MEGA_OWNER: 'own-test' })).toThrow(/missing env: MEGA_PING_KEY, GOOGLE_API_KEY/);
+    expect(() => loadAgentEnv({ MEGA_OWNER: 'own-test' })).toThrow(/missing env: MEGA_PING_KEY, MODEL_API_KEY/);
   });
 });

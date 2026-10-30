@@ -7,13 +7,14 @@ export type AgentEnv = {
   owner: string;
   modelKey: string;
   modelBase: string;
-  pulseModel: string;
-  testModel: string;
+  model: string;
   course: string;
 };
 
 const DEFAULT_COURSE = 'https://hq.mega.dev';
-const DEFAULT_MODEL_BASE = 'https://generativelanguage.googleapis.com/v1beta/openai';
+// Not api/paas/v4: that one answers 429.
+const DEFAULT_MODEL_BASE = 'https://api.z.ai/api/coding/paas/v4';
+const DEFAULT_MODEL = 'glm-5.3-flash';
 
 export function loadAgentEnv(env: NodeJS.ProcessEnv = process.env): AgentEnv {
   const missing: string[] = [];
@@ -28,11 +29,10 @@ export function loadAgentEnv(env: NodeJS.ProcessEnv = process.env): AgentEnv {
   const agent: AgentEnv = {
     pingKeys: previous ? [pingKey, previous] : [pingKey],
     owner: get('MEGA_OWNER'),
-    modelKey: get('GOOGLE_API_KEY'),
+    modelKey: get('MODEL_API_KEY'),
     modelBase: get('MODEL_BASE_URL', DEFAULT_MODEL_BASE),
-    pulseModel: get('PULSE_MODEL', 'gemini-flash-lite-latest'),
-    testModel: get('TEST_MODEL', 'gemini-flash-latest'),
-    course: get('MEGA_COURSE', DEFAULT_COURSE),
+    model: get('MODEL_NAME', DEFAULT_MODEL),
+    course: get('COURSE_BASE', DEFAULT_COURSE),
   };
   if (missing.length) throw new Error(`missing env: ${missing.join(', ')}`);
   return agent;

@@ -62,7 +62,8 @@ export async function writeTest(env: AgentEnv, ping: TestPing): Promise<TestRepl
   ].join('\n');
 
   try {
-    const reply = parse(await chat(env, env.testModel, instructions(), user));
+    // One ping, one model call: the test file is the whole answer, so it gets the bigger budget.
+    const reply = parse(await chat(env, instructions(), user, 2000));
     if (!reply) console.error('test-writer: model reply did not parse');
     return reply;
   } catch (err) {

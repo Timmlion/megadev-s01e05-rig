@@ -76,7 +76,8 @@ export async function answerPulse(env: AgentEnv, ping: PulsePing): Promise<strin
 
   let text: string;
   try {
-    text = (await chat(env, env.pulseModel, SYSTEM, user)).slice(0, MAX_TEXT);
+    // One ping, one model call: a short answer, a small output budget.
+    text = (await chat(env, SYSTEM, user, 400)).slice(0, MAX_TEXT);
   } catch (err) {
     console.error(`pulse: ${(err as Error).message}`);
     return fallback(phrase, issue);
